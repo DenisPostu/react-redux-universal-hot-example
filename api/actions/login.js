@@ -1,7 +1,17 @@
 export default function login(req) {
   const user = {
-    name: req.body.name
+    username: req.body.username,
+    password: req.body.password
   };
-  req.session.user = user;
-  return Promise.resolve(user);
+
+  return new Promise((resolve, reject) => {
+    req.stormpath.app.authenticateAccount(user, function authenticateAccountCallback(err, result) {
+      if (err) return reject(err.userMessage);
+
+      req.session.user = result.account;
+      req.session.user.name = result.account.username;
+
+      resolve(req.session.user);
+    });
+  });
 }

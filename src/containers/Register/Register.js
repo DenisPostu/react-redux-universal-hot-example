@@ -8,17 +8,17 @@ import {isLoaded as isAuthLoaded, load as loadAuth} from 'redux/modules/auth';
 @connect(
   state => ({
     user: state.auth.user,
-    loggingIn: state.auth.loggingIn,
-    loginError: state.auth.loginError
+    registering: state.auth.registering,
+    registerError: state.auth.registerError
   }),
   dispatch => bindActionCreators(authActions, dispatch)
 )
-export default class Login extends Component {
+export default class Register extends Component {
   static propTypes = {
     user: PropTypes.object,
-    login: PropTypes.func,
-    loggingIn: PropTypes.bool,
-    loginError: PropTypes.string,
+    register: PropTypes.func,
+    registering: PropTypes.bool,
+    registerError: PropTypes.string,
     logout: PropTypes.func
   }
 
@@ -31,29 +31,34 @@ export default class Login extends Component {
   handleSubmit(event) {
     event.preventDefault();
     const username = this.refs.username.value;
+    const email = this.refs.email.value;
     const password = this.refs.password.value;
 
-    this.props.login({username, password});
+    this.props.register({
+      username, email, password
+    });
   }
 
   render() {
-    const {user, logout, loggingIn, loginError} = this.props;
-    const styles = require('./Login.scss');
+    const {user, logout, registering, registerError} = this.props;
+    const styles = require('./Register.scss');
     return (
       <div className={styles.loginPage + ' container'}>
-        <DocumentMeta title="React Redux Example: Login"/>
-        <h1>Login</h1>
+        <DocumentMeta title="React Redux Example: Register"/>
+        <h1>Register</h1>
         {!user &&
         <div>
-          <form className="login-form" onSubmit={::this.handleSubmit}>
-            <input type="text" ref="username" placeholder="Enter a username"/>
-            <input type="password" ref="password" placeholder="Enter a password"/>
-            <button className="btn btn-success" onClick={::this.handleSubmit}><i className="fa fa-sign-in"/>{' '}Log In
+          <form className="register-form" onSubmit={::this.handleSubmit}>
+            <input type="text" ref="username" placeholder="Enter a username"/> <br />
+            <input type="email" ref="email" placeholder="Enter an email"/> <br />
+            <input type="password" ref="password" placeholder="Enter a password"/> <br />
+            <button className="btn btn-success" onClick={::this.handleSubmit}>
+              <i className="fa fa-sign-in"/>{' '}Register
             </button>
-            {loggingIn && <h2>Loading..</h2>}
-            {loginError && <h2>{ loginError }</h2>}
+            {registering && <h2>Registering</h2>}
+            {registerError && <h2>{ registerError }</h2>}
           </form>
-          <p>This will "log you in" as this user, storing the username in the session of the API server.</p>
+          <p>This will "register" a user on stormpath for this user, storing the username in the session of the API server.</p>
         </div>
         }
         {user &&

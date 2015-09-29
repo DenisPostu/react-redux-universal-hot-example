@@ -85,7 +85,6 @@ export default class App extends Component {
           <div className="container">
             <Link to="/" className="navbar-brand">
               <div className={styles.brand}/>
-              React Redux Example
             </Link>
 
             <ul className="nav navbar-nav">
@@ -94,6 +93,7 @@ export default class App extends Component {
               <li><Link to="/widgets">Widgets</Link></li>
               <li><Link to="/survey">Survey</Link></li>
               <li><Link to="/about">About Us</Link></li>
+              {!user && <li><Link to="/register">Register</Link></li>}
               {!user && <li><Link to="/login">Login</Link></li>}
               {user && <li className="logout-link"><a href="/logout" onClick={::this.handleLogout}>Logout</a></li>}
             </ul>

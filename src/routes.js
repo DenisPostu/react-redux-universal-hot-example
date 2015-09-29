@@ -7,6 +7,7 @@ import {
     Widgets,
     About,
     Login,
+    Register,
     RequireLogin,
     LoginSuccess,
     Survey,
@@ -20,6 +21,7 @@ export default function(history) {
       <Route path="/widgets" component={Widgets}/>
       <Route path="/about" component={About}/>
       <Route path="/login" component={Login}/>
+      <Route path="/register" component={Register}/>
       <Route component={RequireLogin}>
         <Route path="/chat" component={Chat}/>
         <Route path="/loginSuccess" component={LoginSuccess}/>

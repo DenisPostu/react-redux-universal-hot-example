@@ -8,6 +8,7 @@ import * as actions from './actions/index';
 import PrettyError from 'pretty-error';
 import http from 'http';
 import SocketIo from 'socket.io';
+import stormpath from 'stormpath';
 
 const pretty = new PrettyError();
 const app = express();
@@ -25,6 +26,28 @@ app.use(session({
 }));
 app.use(bodyParser.json());
 
+app.use(function setupStormpath(req, res, next) {
+  console.log(req.url + ' -> !setup stormpath');
+
+  const homedir = (process.platform === 'win32') ? process.env.HOMEPATH : process.env.HOME;
+  const keyfile = homedir + '/.stormpath/apiKey.properties';
+
+  stormpath.loadApiKey(keyfile, function apiKeyFileLoaded(err1, apiKey) {
+    if (err1) return next(err1);
+
+    req.stormpath = { };
+    req.stormpath.client = new stormpath.Client({apiKey: apiKey});
+    req.stormpath.client.getApplications({ name: 'My Application' }, function onApplicationReceived(err2, applications) {
+      if (err2) return next(err2);
+
+      req.stormpath.app = applications.items[0];
+      console.log(applications);
+
+      return next();
+    });
+  });
+});
+
 
 app.use((req, res) => {
 
@@ -35,7 +58,7 @@ app.use((req, res) => {
   let apiActions = actions;
   let sliceIndex = 0;
 
-  for (let actionName of matcher) {
+  for (const actionName of matcher) {
 
     if (apiActions[actionName]) {
       action = apiActions[actionName];
@@ -49,7 +72,7 @@ app.use((req, res) => {
     ++sliceIndex;
   }
 
-  if (action && typeof action == 'function') {
+  if (action && typeof action === 'function') {
     action(req, params)
       .then((result) => {
         res.json(result);
@@ -65,7 +88,6 @@ app.use((req, res) => {
     res.status(404).end('NOT FOUND');
   }
 });
-
 
 const bufferSize = 100;
 const messageBuffer = new Array(bufferSize);
@@ -87,7 +109,7 @@ if (config.apiPort) {
       for(let i = 0; i < bufferSize; i++) {
         const msgNo = (messageIndex + i) % bufferSize;
         const msg = messageBuffer[msgNo];
-        if(msg) {
+        if (msg) {
           socket.emit('msg', msg);
         }
       }
